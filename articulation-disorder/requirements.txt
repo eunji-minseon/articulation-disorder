@@ -1,0 +1,9 @@
+streamlit
+opencv-python-headless
+numpy
+gTTS
+matplotlib
+mediapipe==0.10.21
+imageio-ffmpeg
+openai-whisper
+torch
