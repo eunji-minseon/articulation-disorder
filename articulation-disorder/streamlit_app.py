@@ -1,4 +1,5 @@
 import os
+os.environ["STREAMLIT_WATCHER_TYPE"] = "none"
 import time
 import numpy as np
 import streamlit as st
