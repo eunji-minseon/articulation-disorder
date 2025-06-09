@@ -81,7 +81,6 @@ if user_file:
 
         st.info("📍 사용자 영상 → 입모양 좌표 추출 중...")
         extract_mouth_landmarks(user_video_path, user_coords_path)
-
         user_coords = load_coords(user_coords_path)
 
         if not user_coords or not ref_coords:
@@ -110,7 +109,7 @@ if user_file:
                 distances = np.linalg.norm(c1_np - c2_np, axis=1)
                 avg_dist = np.mean(distances)
                 similarity_score = round(100 * np.exp(-6 * avg_dist), 1)
-                similarities.append(sim1ilarity_score)
+                similarities.append(similarity_score)
             except:
                 continue
 
