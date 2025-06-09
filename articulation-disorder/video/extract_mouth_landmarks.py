@@ -4,7 +4,7 @@ import mediapipe as mp
 # MediaPipe 초기화
 mp_face_mesh = mp.solutions.face_mesh
 
-# 입술 관련 landmark index (직접 정의)
+# 입술 관련 landmark index 
 LIPS_IDX = sorted(set([
     61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291,     # 윗입술
     146, 91, 181, 84, 17, 314, 405, 321, 375             # 아랫입술
@@ -16,7 +16,14 @@ def extract_mouth_landmarks(video_path, output_txt_path):
         print(f"❌ 영상 열기 실패: {video_path}")
         return
 
-    face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1)
+    face_mesh = mp_face_mesh.FaceMesh(
+    static_image_mode=False,
+    max_num_faces=1,
+    refine_landmarks=True,
+    model_selection=1,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+    )
 
     coords_all = []
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
