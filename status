@@ -1,0 +1,16 @@
+[33mac328d6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m chore: trigger rebuild so Streamlit re-reads apt.txt
+[33m29ed70c[m fix: move apt.txt to root so Streamlit installs libgl1
+[33m28be124[m fix: add apt.txt to install libGL.so.1
+[33m78fbb6f[m add: apt.txt for libgl1 (fix OpenCV libGL error)
+[33mf02708d[m Add reference coords
+[33mdff5742[m Fix Python version to 3.10.13 for mediapipe compatibility
+[33mb794ae5[m Fix mediapipe compatibility on Streamlit Cloud
+[33m649e2c4[m Fix mediapipe compatibility on Streamlit Cloud
+[33m415bfd1[m Move runtime.txt to project root for Streamlit compatibility
+[33m1f024ae[m Downgrade mediapipe to 0.10.0 for compatibility
+[33mc5d0e69[m Fix Python version to 3.10 for mediapipe compatibility
+[33mb2ccb7e[m Add Streamlit config
+[33mb23f4a0[m Set runtime and packages for Streamlit Cloud
+[33m646e64b[m Added Dev Container Folder
+[33m8a1e809[m 💾 add streamlit_app.py and all files
+[33mbabf4b3[m Initial commit

@@ -1,0 +1,64 @@
+.
+├── README.md
+├── articulation_disorder
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-311.pyc
+│   │   └── generate_reference_coords.cpython-311.pyc
+│   ├── analysis
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-311.pyc
+│   │   │   ├── __init__.cpython-312.pyc
+│   │   │   ├── compare_shapes.cpython-311.pyc
+│   │   │   └── compare_shapes.cpython-312.pyc
+│   │   └── compare_shapes.py
+│   ├── generate_reference_coords.py
+│   ├── packages.txt
+│   ├── requirements.txt
+│   ├── streamlit_app.py
+│   ├── utils
+│   │   ├── __init__.py
+│   │   └── __pycache__
+│   │       ├── __init__.cpython-311.pyc
+│   │       ├── __init__.cpython-312.pyc
+│   │       ├── webcam_capture.cpython-311.pyc
+│   │       └── webcam_capture.cpython-312.pyc
+│   └── video
+│       ├── __init__.py
+│       ├── __pycache__
+│       │   ├── __init__.cpython-311.pyc
+│       │   ├── __init__.cpython-312.pyc
+│       │   ├── extract_mouth_landmarks.cpython-311.pyc
+│       │   └── extract_mouth_landmarks.cpython-312.pyc
+│       └── extract_mouth_landmarks.py
+├── data
+│   ├── processed
+│   │   ├── normal10_coords.txt
+│   │   ├── normal1_coords.txt
+│   │   ├── normal2_coords.txt
+│   │   ├── normal3_coords.txt
+│   │   ├── normal4_coords.txt
+│   │   ├── normal5_coords.txt
+│   │   ├── normal6_coords.txt
+│   │   ├── normal7_coords.txt
+│   │   ├── normal8_coords.txt
+│   │   ├── normal9_coords.txt
+│   │   └── user_coords.txt
+│   ├── raw
+│   └── ref
+│       ├── normal1.mp4
+│       ├── normal10.mp4
+│       ├── normal2.mp4
+│       ├── normal3.mp4
+│       ├── normal4.mp4
+│       ├── normal5.mp4
+│       ├── normal6.mp4
+│       ├── normal7.mp4
+│       ├── normal8.mp4
+│       └── normal9.mp4
+├── generate_reference_coords.py
+├── runtime.txt
+└── structure.txt
+
+12 directories, 49 files
