@@ -1,5 +1,3 @@
-# ✅ 완전히 정리한 streamlit_app.py (안정형 구조)
-
 import os
 os.environ["STREAMLIT_WATCHER_TYPE"] = "none"
 import time
@@ -10,14 +8,30 @@ from datetime import datetime
 import pandas as pd
 from video.extract_mouth_landmarks import extract_mouth_landmarks
 
-# 경로 설정
+if 'user_id' not in st.session_state:
+    st.session_state.user_id = ""
+
+st.sidebar.markdown("## 🔐 사용자 로그인")
+nickname_or_email = st.sidebar.text_input("닉네임 또는 이메일을 입력하세요", value=st.session_state.user_id)
+
+if nickname_or_email:
+    st.session_state.user_id = nickname_or_email
+    st.sidebar.success(f"✅ {nickname_or_email} 님으로 로그인됨")
+else:
+    st.sidebar.warning("닉네임 또는 이메일을 입력하세요.")
+
+user_id = st.session_state.user_id
+if not user_id:
+    st.error("로그인이 필요합니다. 왼쪽 사이드바에서 닉네임 또는 이메일을 입력해주세요.")
+    st.stop()
+
 RAW_DIR = "data/raw"
 PROCESSED_DIR = "data/processed"
 SCORE_LOG_PATH = "data/user_scores.csv"
+os.makedirs("data", exist_ok=True)
 os.makedirs(RAW_DIR, exist_ok=True)
 os.makedirs(PROCESSED_DIR, exist_ok=True)
 
-# 문장 → 기준 좌표 파일 prefix
 sentence_to_file = {
     "강아지가 짖고 있어요": "normal1",
     "토끼가 풀을 먹어요": "normal2",
@@ -31,7 +45,6 @@ sentence_to_file = {
     "오늘은 기분이 좋아요": "normal10"
 }
 
-# 문장 → 분석 음소
 sentence_analysis = {
     "강아지가 짖고 있어요": ["ㄱ", "ㅇ", "ㅈ", "ㅆ"],
     "토끼가 풀을 먹어요": ["ㅌ", "ㄲ", "ㅍ", "ㄹ"],
@@ -47,14 +60,14 @@ sentence_analysis = {
 
 st.title("\U0001F5E3️ 조음장애 진단 시스템")
 
+st.markdown("## ✅ 사용자 정보")
 selected_sentence = st.selectbox("진단할 문장을 선택하세요:", list(sentence_to_file.keys()))
 phonemes = sentence_analysis[selected_sentence]
-st.markdown(f"### \U0001F3AF 분석할 음소: `{', '.join(phonemes)}`")
+st.markdown(f"### 🎯 분석할 음소: `{', '.join(phonemes)}`")
 
 file_prefix = sentence_to_file[selected_sentence]
 ref_coords_path = os.path.join(PROCESSED_DIR, f"{file_prefix}_coords.txt")
 user_video_path = os.path.join(RAW_DIR, "user_video.mp4")
-
 @st.cache_data
 def load_coords(path):
     coords = []
@@ -68,14 +81,14 @@ def load_coords(path):
 
 ref_coords = load_coords(ref_coords_path)
 
-user_file = st.file_uploader("\U0001F4C5 사용자 영상 업로드 (mp4, mov)", type=["mp4", "mpeg4", "mov"])
+user_file = st.file_uploader("📹 사용자 영상 업로드 (mp4, mov)", type=["mp4", "mpeg4", "mov"])
 
 if user_file:
     with open(user_video_path, "wb") as f:
         f.write(user_file.read())
     st.video(user_video_path)
 
-    if st.button("\U0001F680 분석 시작"):
+    if st.button("🚀 분석 시작"):
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         user_coords_path = os.path.join(PROCESSED_DIR, f"user_coords_{timestamp}.txt")
 
@@ -97,7 +110,7 @@ if user_file:
 
             if len(c1) != len(c2):
                 if not warned:
-                    st.warning(f"⚠️ 좌표 개수 다름 (예시 프레임): 사용자 {len(c1)} vs 기준 {len(c2)}")
+                    st.warning(f"⚠️ 좌표 개수 다름: 사용자 {len(c1)} vs 기준 {len(c2)}")
                     warned = True
                 cut_len = min(len(c1), len(c2))
                 c1 = c1[:cut_len]
@@ -122,31 +135,47 @@ if user_file:
             st.warning("조금 더 연습이 필요해요. 🙂")
         else:
             st.error("입모양이 많이 다르네요. 연습이 필요해요. 🤭")
+            
+        if similarity is not None and timestamp is not None:
+            st.markdown(f"📌 최근 점수: {similarity}% ({timestamp})")    
 
-        # 점수 저장
         result_row = pd.DataFrame([{
+            "user_id": user_id,
             "timestamp": timestamp,
             "sentence": selected_sentence,
             "similarity": similarity
         }])
 
-        if os.path.exists(SCORE_LOG_PATH):
+        if os.path.exists(SCORE_LOG_PATH) and os.path.getsize(SCORE_LOG_PATH) > 0:
             score_df = pd.read_csv(SCORE_LOG_PATH)
             score_df = pd.concat([score_df, result_row], ignore_index=True)
         else:
-            score_df = result_row
+            score_df = result_rowgit add data/processed/수정한파일이름.py
+git commit -m " 수정 내용 아무거나 입력하기 "
+git push origin main
+
 
         score_df.to_csv(SCORE_LOG_PATH, index=False)
+        st.success("📈 분석 결과 저장 완료!")
 
-# 기록 출력
-if os.path.exists(SCORE_LOG_PATH):
+if os.path.exists(SCORE_LOG_PATH) and os.path.getsize(SCORE_LOG_PATH) > 0:
     score_df = pd.read_csv(SCORE_LOG_PATH)
 else:
-    score_df = pd.DataFrame()
+    score_df = pd.DataFrame(columns=["user_id", "timestamp", "sentence", "similarity"])
 
 st.markdown("---")
-st.markdown("### 🗂️ 이전 분석 기록")
-st.dataframe(score_df.sort_values("timestamp", ascending=False).reset_index(drop=True))
+st.markdown("### 🗂️ 내 분석 기록")
 
-score_df.to_csv(SCORE_LOG_PATH, index=False)
-print(f"✅ 점수 저장됨: {SCORE_LOG_PATH}")
+user_history = score_df[score_df["user_id"] == user_id] if "user_id" in score_df.columns else pd.DataFrame()
+try:
+    st.dataframe(user_history.sort_values("timestamp", ascending=False).reset_index(drop=True))
+except KeyError:
+    st.warning("❌ 'timestamp' 열이 없어서 정렬할 수 없습니다.")
+    st.dataframe(user_history)
+
+if st.button("🗑️ 기존 기록 완전 삭제"):
+    try:
+        os.remove(SCORE_LOG_PATH)
+        st.success("✅ 기존 기록 삭제 완료! 앱을 다시 실행해주세요.")
+    except:
+        st.warning("❌ 삭제할 파일이 없거나 이미 삭제되었습니다.")
