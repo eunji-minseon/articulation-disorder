@@ -16,14 +16,7 @@ def extract_mouth_landmarks(video_path, output_txt_path):
         print(f"❌ 영상 열기 실패: {video_path}")
         return
 
-    face_mesh = mp_face_mesh.FaceMesh(
-    static_image_mode=False,
-    max_num_faces=1,
-    refine_landmarks=True,
-    model_selection=1,
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5
-    )
+    face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1)
 
     coords_all = []
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -55,4 +48,4 @@ def extract_mouth_landmarks(video_path, output_txt_path):
         for frame_coords in coords_all:
             f.write(str(frame_coords) + "\n")
 
-    print(f"📽️ {video_path}: 총 {total_frames}프레임 중 {success_count}개에서 얼굴 인식 성공")
+    print(f"📽️ {video_path}: 총 {total_frames}프레임 중 {success_count}개에서 얼굴 인식 성공") 
