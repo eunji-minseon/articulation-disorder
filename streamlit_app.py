@@ -1,4 +1,8 @@
 import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), "articulation-disorder"))
+
+import os
 os.environ["STREAMLIT_WATCHER_TYPE"] = "none"
 import time
 import numpy as np
@@ -150,10 +154,7 @@ if user_file:
             score_df = pd.read_csv(SCORE_LOG_PATH)
             score_df = pd.concat([score_df, result_row], ignore_index=True)
         else:
-            score_df = result_rowgit add data/processed/수정한파일이름.py
-git commit -m " 수정 내용 아무거나 입력하기 "
-git push origin main
-
+            score_df = result_row
 
         score_df.to_csv(SCORE_LOG_PATH, index=False)
         st.success("📈 분석 결과 저장 완료!")
