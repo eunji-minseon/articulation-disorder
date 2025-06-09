@@ -109,8 +109,8 @@ if user_file:
                 c2_np = np.array(c2)
                 distances = np.linalg.norm(c1_np - c2_np, axis=1)
                 avg_dist = np.mean(distances)
-                similarity_score = max(0.0, 100 - avg_dist * 300)
-                similarities.append(similarity_score)
+                similarity_score = round(100 * np.exp(-6 * avg_dist), 1)
+                similarities.append(sim1ilarity_score)
             except:
                 continue
 
