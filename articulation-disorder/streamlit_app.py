@@ -142,7 +142,6 @@ def load_coords(path):
                 continue
     return coords
 
-ref_coords_path = "data/processed/normal1_coords.txt" 
 ref_coords = load_coords(ref_coords_path)
 
 user_file = st.file_uploader("📹 사용자 영상 업로드 (mp4, mov)", type=["mp4", "mpeg4", "mov"])

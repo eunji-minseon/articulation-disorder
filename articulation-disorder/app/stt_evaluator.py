@@ -13,3 +13,14 @@ def calculate_stt_score(user_text, correct_text):
     except Exception as e:
         print("STT 점수 계산 중 오류:", e)
         return 0.0
+
+import whisper
+
+def run_whisper_stt(video_path):
+    try:
+        model = whisper.load_model("base")
+        result = model.transcribe(video_path)
+        return result["text"]
+    except Exception as e:
+        print("Whisper STT 처리 중 오류:", e)
+        return ""
