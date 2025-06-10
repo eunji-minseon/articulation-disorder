@@ -47,12 +47,8 @@ def calculate_improved_similarity(user_coords, ref_coords):
             c2 = c2[:cut_len]
         
         try:
-            # 좌표 정규화
-            c1_norm = normalize_coordinates(c1)
-            c2_norm = normalize_coordinates(c2)
-            
-            c1_np = np.array(c1_norm)
-            c2_np = np.array(c2_norm)
+            c1_np = np.array(c1)
+            c2_np = np.array(c2)
             
             # 거리 계산
             distances = np.linalg.norm(c1_np - c2_np, axis=1)
