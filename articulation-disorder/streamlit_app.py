@@ -33,34 +33,37 @@ def normalize_coordinates(coords):
     return normalized_coords.tolist()
 
 def calculate_improved_similarity(user_coords, ref_coords):
-    """개선된 유사도 계산"""
+    """좌표가 완전히 같으면 100%, 아니면 거리 기반 유사도"""
     similarities = []
     min_len = min(len(user_coords), len(ref_coords))
-    
+
     for i in range(min_len):
         c1 = user_coords[i]
         c2 = ref_coords[i]
-        
+
         if len(c1) != len(c2):
             cut_len = min(len(c1), len(c2))
             c1 = c1[:cut_len]
             c2 = c2[:cut_len]
-        
+
         try:
             c1_np = np.array(c1)
             c2_np = np.array(c2)
-            
-            # 거리 계산
-            distances = np.linalg.norm(c1_np - c2_np, axis=1)
-            avg_dist = np.mean(distances)
-            
-            # 더 관대한 유사도 계산 (기존 -6 → -2로 변경)
-            similarity_score = round(100 * np.exp(-2 * avg_dist), 1)
+
+            # 좌표가 거의 완전히 같으면 유사도 100%
+            if np.allclose(c1_np, c2_np, atol=1e-6):
+                similarity_score = 100.0
+            else:
+                distances = np.linalg.norm(c1_np - c2_np, axis=1)
+                avg_dist = np.mean(distances)
+                similarity_score = round(100 * np.exp(-2 * avg_dist), 1)
+
             similarities.append(similarity_score)
-            
+
         except Exception as e:
+            print(f"Error at frame {i}: {e}")
             continue
-    
+
     return round(sum(similarities) / len(similarities), 1) if similarities else 0.0
 
 if 'user_id' not in st.session_state:
