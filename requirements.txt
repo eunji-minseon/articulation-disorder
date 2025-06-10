@@ -7,3 +7,4 @@ matplotlib
 imageio-ffmpeg
 openai-whisper
 torch
+jiwer
