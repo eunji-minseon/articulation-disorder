@@ -90,9 +90,11 @@ if not user_id:
     st.error("로그인이 필요합니다. 왼쪽 사이드바에서 닉네임 또는 이메일을 입력해주세요.")
     st.stop()
 
-RAW_DIR = "data/raw"
-PROCESSED_DIR = "data/processed"
-SCORE_LOG_PATH = "data/user_scores.csv"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+RAW_DIR = os.path.join(BASE_DIR, "data", "raw")
+PROCESSED_DIR = os.path.join(BASE_DIR, "data", "processed")
+SCORE_LOG_PATH = os.path.join(BASE_DIR, "data", "user_scores.csv")
+
 os.makedirs("data", exist_ok=True)
 os.makedirs(RAW_DIR, exist_ok=True)
 os.makedirs(PROCESSED_DIR, exist_ok=True)
@@ -131,6 +133,10 @@ st.markdown(f"### 🎯 분석할 음소: `{', '.join(phonemes)}`")
 file_prefix = sentence_to_file[selected_sentence]
 ref_coords_path = os.path.join(PROCESSED_DIR, f"{file_prefix}_coords.txt")
 user_video_path = os.path.join(RAW_DIR, "user_video.mp4")
+print("✅ ref_coords_path =", ref_coords_path)
+print("📁 현재 디렉토리 =", os.getcwd())
+print("✅ ref_coords_path =", ref_coords_path)
+print("📂 파일 존재? =", os.path.exists(ref_coords_path))
 
 def load_coords(path):
     coords = []
