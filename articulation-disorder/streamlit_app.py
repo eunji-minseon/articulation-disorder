@@ -11,6 +11,7 @@ import ast
 from datetime import datetime
 import pandas as pd
 from video.extract_mouth_landmarks import extract_mouth_landmarks
+from app.stt_evaluator import calculate_stt_score, run_whisper_stt
 
 def normalize_coordinates(coords):
     """좌표를 정규화하여 얼굴 크기와 위치 차이를 보정"""
@@ -76,7 +77,7 @@ if 'user_id' not in st.session_state:
     st.session_state.user_id = ""
 
 st.sidebar.markdown("## 🔐 사용자 로그인")
-nickname_or_email = st.sidebar.text_input("닉네임 또는 이메일을 입력하세요", value=st.session_state.user_id)
+nickname_or_email = st.sidebar.text_input("닉네임 또는 이메일을 입력하세요.", value=st.session_state.user_id)
 
 if nickname_or_email:
     st.session_state.user_id = nickname_or_email
@@ -123,7 +124,7 @@ sentence_analysis = {
 st.title("\U0001F5E3️ 조음장애 진단 시스템")
 
 st.markdown("## ✅ 사용자 정보")
-selected_sentence = st.selectbox("진단할 문장을 선택하세요:", list(sentence_to_file.keys()))
+selected_sentence = st.selectbox("진단할 문장을 선택하세요.:", list(sentence_to_file.keys()))
 phonemes = sentence_analysis[selected_sentence]
 st.markdown(f"### 🎯 분석할 음소: `{', '.join(phonemes)}`")
 
@@ -169,6 +170,14 @@ if user_file:
         ref_coords = [normalize_coordinates(frame) for frame in ref_coords]
         print("ref shape:", np.array(ref_coords).shape)
         print("user shape:", np.array(user_coords).shape)
+        
+        st.info("🔊 Whisper로 STT 분석 중...")
+        stt_result = run_whisper_stt(user_video_path)
+        st.markdown(f"### 📝 Whisper 추출 텍스트: `{stt_result}`")
+
+        correct_text = selected_sentence  # 정답 문장은 선택된 문장 그대로
+        stt_score = calculate_stt_score(stt_result, correct_text)
+        st.markdown(f"### 🧠 STT 정확도 점수: `{stt_score}%`")
 
         similarity = calculate_improved_similarity(user_coords, ref_coords)
 
@@ -187,7 +196,8 @@ if user_file:
             "user_id": user_id,
             "timestamp": timestamp,
             "sentence": selected_sentence,
-            "similarity": similarity
+            "similarity": similarity,
+            "stt_score": stt_score
         }])
 
         if os.path.exists(SCORE_LOG_PATH) and os.path.getsize(SCORE_LOG_PATH) > 0:
