@@ -155,6 +155,14 @@ if user_file:
         if not user_coords or not ref_coords:
             st.error("🚨 좌표 데이터가 비어있습니다.")
             st.stop()
+        # 좌표 불러온 후 정규화
+        user_coords = load_coords(user_coords_path)
+        ref_coords = load_coords(ref_coords_path)
+
+        user_coords = [normalize_coordinates(frame) for frame in user_coords]
+        ref_coords = [normalize_coordinates(frame) for frame in ref_coords]
+        print("ref shape:", np.array(ref_coords).shape)
+        print("user shape:", np.array(user_coords).shape)
 
         similarity = calculate_improved_similarity(user_coords, ref_coords)
 
