@@ -6,7 +6,7 @@ PROCESSED_DIR = "data/processed"
 os.makedirs(RAW_DIR, exist_ok=True)
 os.makedirs(PROCESSED_DIR, exist_ok=True)
 
-for i in range(1, 11):
+for i in range(1, 10):
     video_path = os.path.join(RAW_DIR, f"normal{i}.mp4")
     coords_path = os.path.join(PROCESSED_DIR, f"normal{i}_coords.txt")
 

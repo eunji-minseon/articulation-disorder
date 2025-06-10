@@ -1,0 +1,142 @@
+[33mcommit 193c0ce9167312a2e22b6c411bdd6be2bd0468f0[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: eunji-minseon <pej3404@gachon.ac.kr>
+Date:   Tue Jun 10 17:46:07 2025 +0000
+
+    영상 업로드
+
+ .../data/processed/normal1_coords.txt                 | 192 [32m++++++++++++++++++++++[m
+ articulation-disorder/data/raw/normal1.mp4            | Bin [31m0[m -> [32m12856886[m bytes
+ 2 files changed, 192 insertions(+)
+
+[33mcommit e5b816e5493d86e10da1244d4ba362b226693861[m
+Author: eunji-minseon <pej3404@gachon.ac.kr>
+Date:   Tue Jun 10 17:32:56 2025 +0000
+
+    Add jiwer for STT score calculation
+
+ requirements.txt | 1 [32m+[m
+ 1 file changed, 1 insertion(+)
+
+[33mcommit 8c6ffd21ceb64d20dc4d9cd8dbe0986e1dc52a54[m
+Author: eunji-minseon <pej3404@gachon.ac.kr>
+Date:   Tue Jun 10 17:31:36 2025 +0000
+
+    stt 추가, streamlit_app.py 문장 수정
+
+ articulation-disorder/app/stt_evaluator.py | 20 [32m++++++++++++++++++++[m
+ articulation-disorder/streamlit_app.py     | 16 [32m+++++++++++++[m[31m---[m
+ 2 files changed, 33 insertions(+), 3 deletions(-)
+
+[33mcommit 1882aaf3663c4bd7ff888a675287434c6c73b09e[m
+Author: eunji-minseon <pej3404@gachon.ac.kr>
+Date:   Tue Jun 10 17:17:57 2025 +0000
+
+    🔤 Update: 동요 문장 가나다순 정렬 및 분석 항목 반영
+
+ .../data/processed/normal10_coords.txt                |  70 [31m----------------[m
+ .../data/processed/normal1_coords.txt                 |  82 [31m------------------[m
+ .../data/processed/normal2_coords.txt                 |  83 [31m------------------[m
+ .../data/processed/normal3_coords.txt                 |  81 [31m------------------[m
+ .../data/processed/normal4_coords.txt                 |  86 [31m-------------------[m
+ .../data/processed/normal5_coords.txt                 |  82 [31m------------------[m
+ .../data/processed/normal6_coords.txt                 |  89 [31m--------------------[m
+ .../data/processed/normal7_coords.txt                 |  98 [31m----------------------[m
+ .../data/processed/normal8_coords.txt                 |  98 [31m----------------------[m
+ .../data/processed/normal9_coords.txt                 |  95 [31m---------------------[m
+ articulation-disorder/data/processed/user_coords.txt  |  82 [31m------------------[m
+ articulation-disorder/data/raw/normal1.mp4            | Bin [31m1226713[m -> [32m0[m bytes
+ articulation-disorder/data/raw/normal10.mp4           | Bin [31m982022[m -> [32m0[m bytes
+ articulation-disorder/data/raw/normal2.mp4            | Bin [31m1240962[m -> [32m0[m bytes
+ articulation-disorder/data/raw/normal3.mp4            | Bin [31m1146398[m -> [32m0[m bytes
+ articulation-disorder/data/raw/normal4.mp4            | Bin [31m1249418[m -> [32m0[m bytes
+ articulation-disorder/data/raw/normal5.mp4            | Bin [31m1174600[m -> [32m0[m bytes
+ articulation-disorder/data/raw/normal6.mp4            | Bin [31m1252614[m -> [32m0[m bytes
+ articulation-disorder/data/raw/normal7.mp4            | Bin [31m1444510[m -> [32m0[m bytes
+ articulation-disorder/data/raw/normal8.mp4            | Bin [31m1412404[m -> [32m0[m bytes
+ articulation-disorder/data/raw/normal9.mp4            | Bin [31m1403175[m -> [32m0[m bytes
+ articulation-disorder/data/raw/user_video.mp4         | Bin [31m1174600[m -> [32m0[m bytes
+ articulation-disorder/streamlit_app.py                |  38 [32m++++[m[31m-----[m
+ 23 files changed, 18 insertions(+), 966 deletions(-)
+
+[33mcommit 31ff6b2b8f779907cc659aa5c64f07a799aaff1f[m
+Author: eunji-minseon <pej3404@gachon.ac.kr>
+Date:   Tue Jun 10 16:47:08 2025 +0000
+
+    streamlit_app.py 좌표수정
+
+ articulation-disorder/streamlit_app.py                    |   7 [32m++++++[m[31m-[m
+ .../__pycache__/extract_mouth_landmarks.cpython-311.pyc   | Bin [31m2958[m -> [32m7582[m bytes
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+[33mcommit 55c46b5f28fb819c8ca0d2931c5403668b096424[m
+Author: eunji-minseon <pej3404@gachon.ac.kr>
+Date:   Tue Jun 10 16:36:17 2025 +0000
+
+    🔧 유사도 계산 함수 개선: 좌표 완전 일치 시 100% 처리
+
+ articulation-disorder/streamlit_app.py | 29 [32m++++++++++++++++[m[31m-------------[m
+ 1 file changed, 16 insertions(+), 13 deletions(-)
+
+[33mcommit 1cd68b8812d01a9df23a52a9a004a120661c7a72[m
+Author: eunji-minseon <pej3404@gachon.ac.kr>
+Date:   Tue Jun 10 14:13:42 2025 +0000
+
+    🔥 Fix: 정규화 적용하여 유사도 계산 정확도 개선
+
+ articulation-disorder/data/user_scores.csv | 5 [31m-----[m
+ articulation-disorder/streamlit_app.py     | 8 [32m++++++++[m
+ 2 files changed, 8 insertions(+), 5 deletions(-)
+
+[33mcommit 25035ebfe27b97a28e9e9473b2df5ce66b90e5b2[m
+Author: eunji-minseon <pej3404@gachon.ac.kr>
+Date:   Tue Jun 10 13:38:14 2025 +0000
+
+    정리: user_scores.csv만 유지하고 루트 data 폴더 제거
+
+ {data => articulation-disorder/data}/user_scores.csv |   0
+ data/processed/normal10_coords.txt                   |  70 [31m----[m
+ data/processed/normal1_coords.txt                    |  88 [31m-----[m
+ data/processed/normal2_coords.txt                    |  88 [31m-----[m
+ data/processed/normal3_coords.txt                    |  82 [31m-----[m
+ data/processed/normal4_coords.txt                    |  90 [31m------[m
+ data/processed/normal5_coords.txt                    |  87 [31m-----[m
+ data/processed/normal6_coords.txt                    |  89 [31m-----[m
+ data/processed/normal7_coords.txt                    | 105 [31m------[m
+ data/processed/normal8_coords.txt                    | 101 [31m------[m
+ data/processed/normal9_coords.txt                    | 101 [31m------[m
+ data/processed/user_coords.txt                       |  82 [31m-----[m
+ data/processed/user_coords_20250609_045844.txt       |  82 [31m-----[m
+ data/processed/user_coords_20250609_051341.txt       |  82 [31m-----[m
+ data/processed/user_coords_20250609_051624.txt       |  82 [31m-----[m
+ data/processed/user_coords_20250609_052600.txt       |  82 [31m-----[m
+ data/processed/user_coords_20250609_060804.txt       |  83 [31m-----[m
+ data/processed/user_coords_20250609_061338.txt       |  83 [31m-----[m
+ data/processed/user_coords_20250609_075043.txt       | 101 [31m------[m
+ data/processed/user_coords_20250609_115111.txt       | 393 [31m-----------------------[m
+ data/processed/user_coords_20250609_115137.txt       | 393 [31m-----------------------[m
+ data/processed/user_coords_20250609_132537.txt       | 393 [31m-----------------------[m
+ data/processed/user_coords_20250609_142400.txt       | 100 [31m------[m
+ data/raw/user_video.mp4                              | Bin [31m936537[m -> [32m0[m bytes
+ data/ref/normal1.mp4                                 | Bin [31m1226713[m -> [32m0[m bytes
+ data/ref/normal10.mp4                                | Bin [31m982022[m -> [32m0[m bytes
+ data/ref/normal2.mp4                                 | Bin [31m1240962[m -> [32m0[m bytes
+ data/ref/normal3.mp4                                 | Bin [31m1146398[m -> [32m0[m bytes
+ data/ref/normal4.mp4                                 | Bin [31m1249418[m -> [32m0[m bytes
+ data/ref/normal5.mp4                                 | Bin [31m1174600[m -> [32m0[m bytes
+ data/ref/normal6.mp4                                 | Bin [31m1252614[m -> [32m0[m bytes
+ data/ref/normal7.mp4                                 | Bin [31m1444510[m -> [32m0[m bytes
+ data/ref/normal8.mp4                                 | Bin [31m1412404[m -> [32m0[m bytes
+ data/ref/normal9.mp4                                 | Bin [31m1403175[m -> [32m0[m bytes
+ 34 files changed, 2857 deletions(-)
+
+[33mcommit e5571634dd93f7a20a56fe73c2921ed59687e875[m
+Author: eunji-minseon <pej3404@gachon.ac.kr>
+Date:   Tue Jun 10 13:19:20 2025 +0000
+
+    streamlit_app.py 좌표수정
+
+ articulation-disorder/streamlit_app.py                |   8 [32m+[m[31m-[m
+ .../video/extract_mouth_landmarks.py                  | 127 [32m+++++++++++++++++++[m[31m---[m
+ 2 files changed, 115 insertions(+), 20 deletions(-)
+
+[33mcommit f6b5e473
