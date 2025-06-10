@@ -12,6 +12,61 @@ from datetime import datetime
 import pandas as pd
 from video.extract_mouth_landmarks import extract_mouth_landmarks
 
+def normalize_coordinates(coords):
+    """좌표를 정규화하여 얼굴 크기와 위치 차이를 보정"""
+    if not coords:
+        return coords
+    
+    coords_array = np.array(coords)
+    
+    # 중심점 계산 (얼굴 위치 보정)
+    center = np.mean(coords_array, axis=0)
+    centered_coords = coords_array - center
+    
+    # 스케일 정규화 (얼굴 크기 보정)
+    scale = np.std(centered_coords)
+    if scale > 0:
+        normalized_coords = centered_coords / scale
+    else:
+        normalized_coords = centered_coords
+    
+    return normalized_coords.tolist()
+
+def calculate_improved_similarity(user_coords, ref_coords):
+    """개선된 유사도 계산"""
+    similarities = []
+    min_len = min(len(user_coords), len(ref_coords))
+    
+    for i in range(min_len):
+        c1 = user_coords[i]
+        c2 = ref_coords[i]
+        
+        if len(c1) != len(c2):
+            cut_len = min(len(c1), len(c2))
+            c1 = c1[:cut_len]
+            c2 = c2[:cut_len]
+        
+        try:
+            # 좌표 정규화
+            c1_norm = normalize_coordinates(c1)
+            c2_norm = normalize_coordinates(c2)
+            
+            c1_np = np.array(c1_norm)
+            c2_np = np.array(c2_norm)
+            
+            # 거리 계산
+            distances = np.linalg.norm(c1_np - c2_np, axis=1)
+            avg_dist = np.mean(distances)
+            
+            # 더 관대한 유사도 계산 (기존 -6 → -2로 변경)
+            similarity_score = round(100 * np.exp(-2 * avg_dist), 1)
+            similarities.append(similarity_score)
+            
+        except Exception as e:
+            continue
+    
+    return round(sum(similarities) / len(similarities), 1) if similarities else 0.0
+
 if 'user_id' not in st.session_state:
     st.session_state.user_id = ""
 
@@ -72,6 +127,7 @@ st.markdown(f"### 🎯 분석할 음소: `{', '.join(phonemes)}`")
 file_prefix = sentence_to_file[selected_sentence]
 ref_coords_path = os.path.join(PROCESSED_DIR, f"{file_prefix}_coords.txt")
 user_video_path = os.path.join(RAW_DIR, "user_video.mp4")
+
 @st.cache_data
 def load_coords(path):
     coords = []
@@ -104,38 +160,12 @@ if user_file:
             st.error("🚨 좌표 데이터가 비어있습니다.")
             st.stop()
 
-        similarities = []
-        min_len = min(len(user_coords), len(ref_coords))
-        warned = False
-
-        for i in range(min_len):
-            c1 = user_coords[i]
-            c2 = ref_coords[i]
-
-            if len(c1) != len(c2):
-                if not warned:
-                    st.warning(f"⚠️ 좌표 개수 다름: 사용자 {len(c1)} vs 기준 {len(c2)}")
-                    warned = True
-                cut_len = min(len(c1), len(c2))
-                c1 = c1[:cut_len]
-                c2 = c2[:cut_len]
-
-            try:
-                c1_np = np.array(c1)
-                c2_np = np.array(c2)
-                distances = np.linalg.norm(c1_np - c2_np, axis=1)
-                avg_dist = np.mean(distances)
-                similarity_score = round(100 * np.exp(-6 * avg_dist), 1)
-                similarities.append(similarity_score)
-            except:
-                continue
-
-        similarity = round(sum(similarities) / len(similarities), 1) if similarities else 0.0
+        similarity = calculate_improved_similarity(user_coords, ref_coords)
 
         st.markdown(f"### ✅ 유사도: `{similarity}%`")
-        if similarity >= 85:
+        if similarity >= 70:  # 임계값 조정 (기존 85 → 70)
             st.success("발음이 매우 정확합니다! 😄")
-        elif similarity >= 60:
+        elif similarity >= 50:  # 임계값 조정 (기존 60 → 50)
             st.warning("조금 더 연습이 필요해요. 🙂")
         else:
             st.error("입모양이 많이 다르네요. 연습이 필요해요. 🤭")
