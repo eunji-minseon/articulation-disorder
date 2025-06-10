@@ -50,6 +50,12 @@ def calculate_improved_similarity(user_coords, ref_coords):
             c1_np = np.array(c1)
             c2_np = np.array(c2)
 
+            if np.allclose(c1_np, c2_np, atol=1e-6):
+                print(f"✅ Frame {i}: 좌표 완전 일치 (유사도 100%)")
+            else:
+                print(f"❌ Frame {i}: 좌표 다름")
+                print("차이:", np.abs(c1_np - c2_np).max())
+
             # 좌표가 거의 완전히 같으면 유사도 100%
             if np.allclose(c1_np, c2_np, atol=1e-6):
                 similarity_score = 100.0
@@ -127,7 +133,6 @@ file_prefix = sentence_to_file[selected_sentence]
 ref_coords_path = os.path.join(PROCESSED_DIR, f"{file_prefix}_coords.txt")
 user_video_path = os.path.join(RAW_DIR, "user_video.mp4")
 
-@st.cache_data
 def load_coords(path):
     coords = []
     with open(path, "r") as f:
