@@ -5,6 +5,4 @@ numpy
 gTTS
 matplotlib
 imageio-ffmpeg
-openai-whisper
 torch
-jiwer

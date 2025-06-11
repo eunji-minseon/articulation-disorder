@@ -11,10 +11,9 @@ import ast
 from datetime import datetime
 import pandas as pd
 from video.extract_mouth_landmarks import extract_mouth_landmarks
-from app.stt_evaluator import calculate_stt_score, run_whisper_stt
 
 def normalize_coordinates(coords):
-    """좌표를 정규화하여 얼굴 크기와 위치 차이를 보정"""
+    #좌표 정규화
     if not coords:
         return coords
     
@@ -34,7 +33,7 @@ def normalize_coordinates(coords):
     return normalized_coords.tolist()
 
 def calculate_improved_similarity(user_coords, ref_coords):
-    """좌표가 완전히 같으면 100%, 아니면 거리 기반 유사도"""
+    #거리 기반 계산 유사도
     similarities = []
     min_len = min(len(user_coords), len(ref_coords))
 
@@ -133,11 +132,6 @@ st.markdown(f"### 🎯 분석할 음소: `{', '.join(phonemes)}`")
 file_prefix = sentence_to_file[selected_sentence]
 ref_coords_path = os.path.join(PROCESSED_DIR, f"{file_prefix}_coords.txt")
 user_video_path = os.path.join(RAW_DIR, "user_video.mp4")
-print("✅ ref_coords_path =", ref_coords_path)
-print("📁 현재 디렉토리 =", os.getcwd())
-print("✅ ref_coords_path =", ref_coords_path)
-print("📂 파일 존재? =", os.path.exists(ref_coords_path))
-
 def load_coords(path):
     coords = []
     with open(path, "r") as f:
@@ -176,14 +170,6 @@ if user_file:
         ref_coords = [normalize_coordinates(frame) for frame in ref_coords]
         print("ref shape:", np.array(ref_coords).shape)
         print("user shape:", np.array(user_coords).shape)
-        
-        st.info("🔊 Whisper로 STT 분석 중...")
-        stt_result = run_whisper_stt(user_video_path)
-        st.markdown(f"### 📝 Whisper 추출 텍스트: `{stt_result}`")
-
-        correct_text = selected_sentence  # 정답 문장은 선택된 문장 그대로
-        stt_score = calculate_stt_score(stt_result, correct_text)
-        st.markdown(f"### 🧠 STT 정확도 점수: `{stt_score}%`")
 
         similarity = calculate_improved_similarity(user_coords, ref_coords)
 
@@ -202,8 +188,7 @@ if user_file:
             "user_id": user_id,
             "timestamp": timestamp,
             "sentence": selected_sentence,
-            "similarity": similarity,
-            "stt_score": stt_score
+            "similarity": similarity
         }])
 
         if os.path.exists(SCORE_LOG_PATH) and os.path.getsize(SCORE_LOG_PATH) > 0:
