@@ -185,15 +185,11 @@ if user_file:
             st.markdown(f"📌 최근 점수: {similarity}% ({timestamp})")    
 
         result_row = pd.DataFrame([{
-            "user_id": user_id,
+            "user_id": str(user_id),
             "timestamp": timestamp,
             "sentence": selected_sentence,
             "similarity": similarity
         }])
-        
-        # TODO: remove after debugging
-        st.write("✅ result_row", result_row)
-        st.write("✅ 저장 경로:", SCORE_LOG_PATH)
 
         if os.path.exists(SCORE_LOG_PATH) and os.path.getsize(SCORE_LOG_PATH) > 0:
             score_df = pd.read_csv(SCORE_LOG_PATH)
