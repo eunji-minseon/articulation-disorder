@@ -54,9 +54,9 @@ def calculate_improved_similarity(user_coords, ref_coords):
             distances = np.linalg.norm(c1_np - c2_np, axis=1)
             avg_dist = np.mean(distances)
 
-            # 🎯 개후한 계산 공식
-            similarity_score = round(110 - (avg_dist * 50), 1)  # 점수 뻥튀기
-            similarity_score = min(max(similarity_score, 60), 100)  # 최솟값 60 보장
+            # 개후한 계산 공식
+            similarity_score = round(110 - (avg_dist * 60), 1)  
+            similarity_score = min(max(similarity_score, 40), 100)
 
             similarities.append(similarity_score)
 
@@ -66,7 +66,7 @@ def calculate_improved_similarity(user_coords, ref_coords):
 
     if similarities:
         final_score = round(np.mean(similarities), 1)
-        if final_score >= 98:  # 너무 비슷하면 걍 100
+        if final_score >= 85:  # 너무 비슷하면 걍 100
             return 100.0
         return final_score
     else:
@@ -256,9 +256,9 @@ for col in ["timestamp", "sentence", "articulation_similarity", "speech_similari
 if not user_history.empty:
     display_df = user_history[["timestamp", "sentence", "articulation_similarity", "speech_similarity"]].copy()
     display_df.columns = ["시간", "문장", "조음 정확도", "발화 정확도"]
-    display_df.insert(0, "번호", range(1, len(display_df)+1))
+    
     display_df = display_df.sort_values("시간", ascending=False).reset_index(drop=True)
-
+    display_df.insert(0, "번호", range(1, len(display_df)+1))   
     st.dataframe(display_df)
 else:
     st.info("아직 저장된 분석 기록이 없습니다.")
