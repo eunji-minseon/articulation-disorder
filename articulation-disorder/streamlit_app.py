@@ -15,6 +15,19 @@ from datetime import datetime
 import pandas as pd
 from video.extract_mouth_landmarks import extract_mouth_landmarks
 
+from gtts import gTTS
+import whisper
+
+def text_to_speech(text, filename="output.mp3"):
+    tts = gTTS(text=text, lang='ko')
+    tts.save(filename)
+    return filename
+
+def get_stt_text(video_path):
+    model = whisper.load_model("base")
+    result = model.transcribe(video_path, language='ko')
+    return result["text"]
+
 def calculate_improved_similarity(user_coords, ref_coords):
     similarities = []
     min_len = min(len(user_coords), len(ref_coords))
@@ -35,9 +48,9 @@ def calculate_improved_similarity(user_coords, ref_coords):
             distances = np.linalg.norm(c1_np - c2_np, axis=1)
             avg_dist = np.mean(distances)
 
-            # 🎯 매우 후한 계산 공식
-            similarity_score = round(105 - (avg_dist * 120), 1)  # <-- 핵심
-            similarity_score = min(max(similarity_score, 0), 100)
+            # 🎯 개후한 계산 공식
+            similarity_score = round(110 - (avg_dist * 50), 1)  # 점수 뻥튀기
+            similarity_score = min(max(similarity_score, 60), 100)  # 최솟값 60 보장
 
             similarities.append(similarity_score)
 
@@ -47,11 +60,12 @@ def calculate_improved_similarity(user_coords, ref_coords):
 
     if similarities:
         final_score = round(np.mean(similarities), 1)
-        if final_score >= 95:
+        if final_score >= 98:  # 너무 비슷하면 걍 100
             return 100.0
         return final_score
     else:
         return 0.0
+
 
 if 'user_id' not in st.session_state:
     st.session_state.user_id = ""
