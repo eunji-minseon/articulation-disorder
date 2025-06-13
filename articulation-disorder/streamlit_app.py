@@ -98,8 +98,6 @@ nickname_or_email = st.sidebar.text_input("닉네임 또는 이메일을 입력�
 if nickname_or_email:
     st.session_state.user_id = nickname_or_email
     st.sidebar.success(f"✅ {nickname_or_email} 님으로 로그인됨")
-else:
-    st.sidebar.warning("닉네임 또는 이메일을 입력하세요.")
 
 user_id = st.session_state.user_id
 if not user_id:
