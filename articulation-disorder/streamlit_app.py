@@ -175,7 +175,6 @@ if user_file:
         with st.spinner("📍 사용자 영상 → 입모양 좌표 추출 중..."):
             extract_mouth_landmarks(user_video_path, user_coords_path)
 
-        extract_mouth_landmarks(user_video_path, user_coords_path)
         user_coords = load_coords(user_coords_path)
 
         if not user_coords or not ref_coords:
@@ -184,9 +183,6 @@ if user_file:
         # 좌표 불러온 후 정규화
         user_coords = load_coords(user_coords_path)
         ref_coords = load_coords(ref_coords_path)
-
-        user_coords = [normalize_coordinates(frame) for frame in user_coords]
-        ref_coords = [normalize_coordinates(frame) for frame in ref_coords]
         print("ref shape:", np.array(ref_coords).shape)
         print("user shape:", np.array(user_coords).shape)
 
@@ -204,7 +200,7 @@ if user_file:
                 text_similarity = compare_texts(selected_sentence, stt_result)
                 st.markdown(f"#### ✓ 발화 정확도: `{text_similarity}%`")
 
-                with st.expander("<진단 결과>", expanded=True):
+                with st.expander("📊 진단 결과", expanded=True):
                     col1, col2 = st.columns(2)
 
                     with col1:
