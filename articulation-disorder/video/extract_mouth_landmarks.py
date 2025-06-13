@@ -142,6 +142,7 @@ def extract_mouth_landmarks(video_path, output_txt_path):
     print(f"✅ 완료: {output_txt_path}")
     print(f"📊 성공률: {success_count}/{total_frames} ({success_rate:.1f}%)")
     print(f"💾 저장된 프레임 수: {len(coords_all)}")
+    return success_rate
 
 # 사용 예시
 if __name__ == "__main__":
