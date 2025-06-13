@@ -1,8 +1,9 @@
 import os
+from gtts import gTTS
+import base64
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "articulation-disorder"))
 
-import os
 os.environ["STREAMLIT_WATCHER_TYPE"] = "none"
 import time
 import numpy as np
@@ -174,13 +175,34 @@ if user_file:
         similarity = calculate_improved_similarity(user_coords, ref_coords)
 
         st.markdown(f"### ✅ 유사도: `{similarity}%`")
-        if similarity >= 70:  # 임계값 조정 (기존 85 → 70)
+        if similarity >= 70:  
             st.success("발음이 매우 정확합니다! 😄")
-        elif similarity >= 50:  # 임계값 조정 (기존 60 → 50)
+        elif similarity >= 50: 
             st.warning("조금 더 연습이 필요해요. 🙂")
         else:
             st.error("입모양이 많이 다르네요. 연습이 필요해요. 🤭")
-            
+
+        # 문장만 읽기
+        sentence_text = f"{selected_sentence}"
+        tts_path = text_to_speech(sentence_text, "sentence_only.mp3")
+
+        with open(tts_path, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode()
+            st.markdown(
+                f"""
+                <audio controls autoplay>
+                    <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+                </audio>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        def text_to_speech(text, filename="output.mp3"):
+            tts = gTTS(text=text, lang='ko')
+            tts.save(filename)
+            return filename
+
+
         if similarity is not None and timestamp is not None:
             st.markdown(f"📌 최근 점수: {similarity}% ({timestamp})")    
 
