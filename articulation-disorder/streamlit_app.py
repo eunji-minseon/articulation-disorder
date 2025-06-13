@@ -192,15 +192,10 @@ if user_file:
 
         # 👄 입모양 유사도
         st.markdown(f"### 👄 조음 정확도: `{similarity}%`")
-        if similarity >= 70:
-            st.success("발음이 매우 정확합니다! 😄")
-        elif similarity >= 50:
-            st.warning("조금 더 연습이 필요해요. 🙂")
-        else:
-            st.error("입모양이 많이 다르네요. 연습이 필요해요. 🤭")
 
         # 🧠 STT 기반 발화 유사도
-        st.info("🎙️ 사용자의 실제 발화 내용을 인식 중입니다...")
+        with st.spinner("🎙️ 사용자의 실제 발화 내용을 인식 중입니다..."):
+        stt_result = get_stt_text(user_video_path)
         try:
             stt_result = get_stt_text(user_video_path)
             st.markdown(f"### 📝 STT 결과: `{stt_result}`")
