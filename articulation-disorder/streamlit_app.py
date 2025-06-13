@@ -191,25 +191,25 @@ if user_file:
         similarity = calculate_improved_similarity(user_coords, ref_coords)
 
         # 👄 입모양 유사도
-        st.markdown(f"### 👄 조음 정확도: `{similarity}%`")
+        st.markdown(f"#### ✓ 조음 정확도: `{similarity}%`")
 
         # 🧠 STT 기반 발화 유사도
         with st.spinner("🎙️ 사용자의 실제 발화 내용을 인식 중입니다..."):
             try:
                 stt_result = get_stt_text(user_video_path)
-                st.markdown(f"### 📝 STT 결과: `{stt_result}`")
+                st.markdown(f"#### ✓ STT 결과: `{stt_result}`")
 
                 text_similarity = compare_texts(selected_sentence, stt_result)
-                st.markdown(f"### 🧠 발화 정확도: `{text_similarity}%`")
+                st.markdown(f"#### ✓ 발화 정확도: `{text_similarity}%`")
 
-                with st.expander("📝 진단 결과", expanded=True):
+                with st.expander("<진단 결과>", expanded=True):
                     col1, col2 = st.columns(2)
 
                     with col1:
-                        st.metric("👄 조음 정확도", f"{similarity}%")
+                        st.metric("조음 정확도", f"{similarity}%")
 
                     with col2:
-                        st.metric("🧠 발화 정확도", f"{text_similarity}%")
+                        st.metric("발화 정확도", f"{text_similarity}%")
 
                     st.markdown("### 💬 종합 피드백")
                     if similarity >= 70 and text_similarity >= 80:
