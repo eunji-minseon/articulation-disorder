@@ -18,24 +18,22 @@ from video.extract_mouth_landmarks import extract_mouth_landmarks
 from gtts import gTTS
 import whisper
 
-#tts 함수
 def text_to_speech(text, filename="output.mp3"):
     tts = gTTS(text=text, lang='ko')
     tts.save(filename)
     return filename
-#stt 함수
+
 def get_stt_text(video_path):
     model = whisper.load_model("base")
     result = model.transcribe(video_path, language='ko')
     return result["text"]
 
-#입모양 좌표 유사도 비교 함수
-from difflib import SequenceMatcher 
+from difflib import SequenceMatcher
+
 def compare_texts(ref_text, stt_text):
     ratio = SequenceMatcher(None, ref_text, stt_text).ratio()
     return round(ratio * 100, 1)
 
-# 유클리드 거리 기반 측정 함수
 def calculate_improved_similarity(user_coords, ref_coords):
     similarities = []
     min_len = min(len(user_coords), len(ref_coords))
@@ -48,6 +46,7 @@ def calculate_improved_similarity(user_coords, ref_coords):
             cut_len = min(len(c1), len(c2))
             c1 = c1[:cut_len]
             c2 = c2[:cut_len]
+
         try:
             c1_np = np.array(c1)
             c2_np = np.array(c2)
@@ -55,15 +54,15 @@ def calculate_improved_similarity(user_coords, ref_coords):
             distances = np.linalg.norm(c1_np - c2_np, axis=1)
             avg_dist = np.mean(distances)
 
-            similarity_score = round(100 - (avg_dist * 45), 1)
+            similarity_score = round(100 - (avg_dist * 65), 1)  
             similarity_score = min(max(similarity_score, 30), 100)
 
             similarities.append(similarity_score)
+
         except Exception as e:
             print(f"❌ Error at frame {i}: {e}")
             continue
 
-    # 점수 안정화 처리
     if similarities:
         final_score = round(np.mean(similarities), 1)
         if final_score >= 90: 
@@ -147,36 +146,19 @@ ref_coords = load_coords(ref_coords_path)
 user_file = st.file_uploader("📹 사용자 영상 업로드 (mp4, mov)", type=["mp4", "mpeg4", "mov"])
 
 if user_file:
-    user_video_path = os.path.join(RAW_DIR, "user_video.mp4")
-
     with open(user_video_path, "wb") as f:
         f.write(user_file.read())
-
-    # ✅ 저장 확인
-    if os.path.exists(user_video_path):
-        file_size = os.path.getsize(user_video_path)
-        st.write(f"📁 저장된 사용자 영상 용량: {file_size} bytes")
-        if file_size == 0:
-            st.error("❌ 영상 파일이 비어 있습니다. 업로드 실패!")
-            st.stop()
-    else:
-        st.error("❌ 영상 파일 저장 실패")
-        st.stop()
-
     st.video(user_video_path)
-
 
     if st.button("🚀 분석 시작"):
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         user_coords_path = os.path.join(PROCESSED_DIR, f"user_coords_{timestamp}.txt")
 
         with st.spinner(" 사용자 영상 → 입모양 좌표 추출 중입니다..."):
-            success_rate = extract_mouth_landmarks(user_video_path, user_coords_path)
-            if success_rate == 0:
-                st.error("❌ 입모양 좌표 추출 실패! 영상 문제 또는 얼굴 인식 실패")
-                st.stop()
+            extract_mouth_landmarks(user_video_path, user_coords_path)
 
         user_coords = load_coords(user_coords_path)
+
         if not user_coords or not ref_coords:
             st.error("🚨 좌표 데이터가 비어있습니다.")
             st.stop()
@@ -232,6 +214,7 @@ if user_file:
             )
 
         if similarity is not None and timestamp is not None:
+            st.markdown(f"📌 최근 점수: {similarity}% ({timestamp})")    
 
         result_row = pd.DataFrame([{
             "user_id": str(user_id),
@@ -270,8 +253,8 @@ if not user_history.empty:
     display_df.columns = ["시간", "문장", "조음 정확도", "발화 정확도"]
     
     display_df = display_df.sort_values("시간", ascending=False).reset_index(drop=True)
-    display_df.insert(0, "번호", range(1, len(display_df)+1))
-    st.dataframe(display_df, use_container_width=True, hide_index=True) 
+    display_df.insert(0, "번호", range(1, len(display_df)+1))  # 번호 열은 그대로!
+    st.dataframe(display_df, use_container_width=True, hide_index=True)  # 회색 인덱스 숨기기!
 
 else:
     st.info("아직 저장된 분석 기록이 없습니다.")
