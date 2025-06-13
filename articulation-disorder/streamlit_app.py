@@ -55,8 +55,8 @@ def calculate_improved_similarity(user_coords, ref_coords):
             avg_dist = np.mean(distances)
 
             # 개후한 계산 공식
-            similarity_score = round(110 - (avg_dist * 60), 1)  
-            similarity_score = min(max(similarity_score, 40), 100)
+            similarity_score = round(100 - (avg_dist * 65), 1)  
+            similarity_score = min(max(similarity_score, 30), 100)
 
             similarities.append(similarity_score)
 
