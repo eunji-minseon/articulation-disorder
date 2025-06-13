@@ -139,10 +139,11 @@ sentence_analysis = {
 
 st.title("\U0001F5E3️ 조음장애 진단 시스템")
 
-st.markdown("## ✅ 사용자 정보")
 selected_sentence = st.selectbox("진단할 문장을 선택하세요.:", list(sentence_to_file.keys()))
 phonemes = sentence_analysis[selected_sentence]
-st.markdown(f"### 🎯 분석할 음소: `{', '.join(phonemes)}`")
+st.markdown(f"### ✅ 유의할 음소: `{', '.join(phonemes)}`")
+st.info("👉 해당 음소들을 집중해서 발음하면 더 좋은 결과를 얻을 수 있어요!")
+
 
 file_prefix = sentence_to_file[selected_sentence]
 ref_coords_path = os.path.join(PROCESSED_DIR, f"{file_prefix}_coords.txt")
@@ -170,7 +171,7 @@ if user_file:
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         user_coords_path = os.path.join(PROCESSED_DIR, f"user_coords_{timestamp}.txt")
 
-        with st.spinner("📍 사용자 영상 → 입모양 좌표 추출 중..."):
+        with st.spinner(" 사용자 영상 → 입모양 좌표 추출 중입니다..."):
             extract_mouth_landmarks(user_video_path, user_coords_path)
 
         user_coords = load_coords(user_coords_path)
@@ -192,11 +193,11 @@ if user_file:
         # 🧠 STT 기반 발화 유사도
         with st.spinner("🎙️ 사용자의 실제 발화 내용을 인식 중입니다..."):
             try:
-                stt_result = get_stt_text(user_video_path)
-                st.markdown(f"#### ✓ STT 결과: `{stt_result}`")
-
                 text_similarity = compare_texts(selected_sentence, stt_result)
                 st.markdown(f"#### ✓ 발화 정확도: `{text_similarity}%`")
+
+                stt_result = get_stt_text(user_video_path)
+                st.markdown(f"#### ✓ 인식된 음성 결과: `{stt_result}`")
 
                 with st.expander("📊 진단 결과", expanded=True):
                     col1, col2 = st.columns(2)
