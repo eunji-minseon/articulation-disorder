@@ -15,36 +15,7 @@ from datetime import datetime
 import pandas as pd
 from video.extract_mouth_landmarks import extract_mouth_landmarks
 
-def text_to_speech(text, filename="output.mp3"):
-    tts = gTTS(text=text, lang='ko')
-    tts.save(filename)
-    return filename
-
-def get_stt_text(video_path):
-    model = whisper.load_model("base")
-    result = model.transcribe(video_path, language='ko')
-    return result["text"]
-
-def compare_texts(ref_text, stt_text):
-    ratio = SequenceMatcher(None, ref_text, stt_text).ratio()
-    return round(ratio * 100, 1)
-
-def normalize_coordinates(coords):
-    """Bounding box 기준 정규화"""
-    coords_array = np.array(coords)
-
-    min_xy = np.min(coords_array, axis=0)
-    max_xy = np.max(coords_array, axis=0)
-    box_size = max_xy - min_xy
-
-    # divide by zero 방지
-    box_size[box_size == 0] = 1e-6
-
-    normalized_coords = (coords_array - min_xy) / box_size
-    return normalized_coords.tolist()
-
 def calculate_improved_similarity(user_coords, ref_coords):
-    #거리 기반 계산 유사도
     similarities = []
     min_len = min(len(user_coords), len(ref_coords))
 
@@ -61,27 +32,26 @@ def calculate_improved_similarity(user_coords, ref_coords):
             c1_np = np.array(c1)
             c2_np = np.array(c2)
 
-            if np.allclose(c1_np, c2_np, atol=1e-6):
-                print(f"✅ Frame {i}: 좌표 완전 일치 (유사도 100%)")
-            else:
-                print(f"❌ Frame {i}: 좌표 다름")
-                print("차이:", np.abs(c1_np - c2_np).max())
+            distances = np.linalg.norm(c1_np - c2_np, axis=1)
+            avg_dist = np.mean(distances)
 
-            # 좌표가 거의 완전히 같으면 유사도 100%
-            if np.allclose(c1_np, c2_np, atol=1e-6):
-                similarity_score = 100.0
-            else:
-                distances = np.linalg.norm(c1_np - c2_np, axis=1)
-                avg_dist = np.mean(distances)
-                similarity_score = round(100 * np.exp(-2 * avg_dist), 1)
+            # 🎯 매우 후한 계산 공식
+            similarity_score = round(105 - (avg_dist * 120), 1)  # <-- 핵심
+            similarity_score = min(max(similarity_score, 0), 100)
 
             similarities.append(similarity_score)
 
         except Exception as e:
-            print(f"Error at frame {i}: {e}")
+            print(f"❌ Error at frame {i}: {e}")
             continue
 
-    return round(sum(similarities) / len(similarities), 1) if similarities else 0.0
+    if similarities:
+        final_score = round(np.mean(similarities), 1)
+        if final_score >= 95:
+            return 100.0
+        return final_score
+    else:
+        return 0.0
 
 if 'user_id' not in st.session_state:
     st.session_state.user_id = ""
@@ -234,10 +204,11 @@ if user_file:
         result_row = pd.DataFrame([{
             "user_id": str(user_id),
             "timestamp": timestamp,
+            "sentence": selected_sentence,
             "articulation_similarity": similarity, 
             "speech_similarity": text_similarity
-           
         }])
+
 
         if os.path.exists(SCORE_LOG_PATH) and os.path.getsize(SCORE_LOG_PATH) > 0:
             score_df = pd.read_csv(SCORE_LOG_PATH)
@@ -254,7 +225,7 @@ else:
     score_df = pd.DataFrame(columns=["user_id", "timestamp", "sentence", "similarity"])
 
 st.markdown("---")
-st.markdown("### 🗂️ 내 분석 기록")
+st.markdown("### 📂 내 분석 기록")
 
 user_history = score_df[score_df["user_id"] == user_id] if "user_id" in score_df.columns else pd.DataFrame()
 
@@ -262,15 +233,15 @@ for col in ["timestamp", "sentence", "articulation_similarity", "speech_similari
     if col not in user_history.columns:
         user_history[col] = None
 
-try:
-    st.dataframe(
-        user_history[["timestamp", "sentence", "articulation_similarity", "speech_similarity"]]
-        .sort_values("timestamp", ascending=False)
-        .reset_index(drop=True)
-    )
-except KeyError:
-    st.warning("❌ 'timestamp' 열이 없어서 정렬할 수 없습니다.")
-    st.dataframe(user_history)
+if not user_history.empty:
+    display_df = user_history[["timestamp", "sentence", "articulation_similarity", "speech_similarity"]].copy()
+    display_df.columns = ["시간", "문장", "조음 정확도", "발화 정확도"]
+    display_df.insert(0, "번호", range(1, len(display_df)+1))
+    display_df = display_df.sort_values("시간", ascending=False).reset_index(drop=True)
+
+    st.dataframe(display_df)
+else:
+    st.info("아직 저장된 분석 기록이 없습니다.")
 
 
 if st.button("🗑️ 기존 기록 완전 삭제"):

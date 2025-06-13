@@ -12,7 +12,6 @@ LIPS_IDX = sorted(set([
 ]))
 
 class CoordinateSmoothing:
-    """좌표 스무딩을 위한 클래스"""
     def __init__(self, alpha=0.7):
         self.alpha = alpha
         self.prev_coords = None
