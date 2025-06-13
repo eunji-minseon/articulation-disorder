@@ -28,6 +28,12 @@ def get_stt_text(video_path):
     result = model.transcribe(video_path, language='ko')
     return result["text"]
 
+from difflib import SequenceMatcher
+
+def compare_texts(ref_text, stt_text):
+    ratio = SequenceMatcher(None, ref_text, stt_text).ratio()
+    return round(ratio * 100, 1)
+
 def calculate_improved_similarity(user_coords, ref_coords):
     similarities = []
     min_len = min(len(user_coords), len(ref_coords))
