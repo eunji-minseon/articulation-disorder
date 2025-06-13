@@ -55,7 +55,7 @@ def calculate_improved_similarity(user_coords, ref_coords):
             distances = np.linalg.norm(c1_np - c2_np, axis=1)
             avg_dist = np.mean(distances)
 
-            similarity_score = round(100 - (avg_dist * 70), 1)  
+            similarity_score = round(100 - (avg_dist * 45), 1)
             similarity_score = min(max(similarity_score, 30), 100)
 
             similarities.append(similarity_score)
@@ -147,19 +147,36 @@ ref_coords = load_coords(ref_coords_path)
 user_file = st.file_uploader("📹 사용자 영상 업로드 (mp4, mov)", type=["mp4", "mpeg4", "mov"])
 
 if user_file:
+    user_video_path = os.path.join(RAW_DIR, "user_video.mp4")
+
     with open(user_video_path, "wb") as f:
         f.write(user_file.read())
+
+    # ✅ 저장 확인
+    if os.path.exists(user_video_path):
+        file_size = os.path.getsize(user_video_path)
+        st.write(f"📁 저장된 사용자 영상 용량: {file_size} bytes")
+        if file_size == 0:
+            st.error("❌ 영상 파일이 비어 있습니다. 업로드 실패!")
+            st.stop()
+    else:
+        st.error("❌ 영상 파일 저장 실패")
+        st.stop()
+
     st.video(user_video_path)
+
 
     if st.button("🚀 분석 시작"):
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         user_coords_path = os.path.join(PROCESSED_DIR, f"user_coords_{timestamp}.txt")
 
         with st.spinner(" 사용자 영상 → 입모양 좌표 추출 중입니다..."):
-            extract_mouth_landmarks(user_video_path, user_coords_path)
+            success_rate = extract_mouth_landmarks(user_video_path, user_coords_path)
+            if success_rate == 0:
+                st.error("❌ 입모양 좌표 추출 실패! 영상 문제 또는 얼굴 인식 실패")
+                st.stop()
 
         user_coords = load_coords(user_coords_path)
-
         if not user_coords or not ref_coords:
             st.error("🚨 좌표 데이터가 비어있습니다.")
             st.stop()
@@ -215,7 +232,6 @@ if user_file:
             )
 
         if similarity is not None and timestamp is not None:
-            st.markdown(f"📌 최근 점수: {similarity}% ({timestamp})")    
 
         result_row = pd.DataFrame([{
             "user_id": str(user_id),
@@ -254,8 +270,8 @@ if not user_history.empty:
     display_df.columns = ["시간", "문장", "조음 정확도", "발화 정확도"]
     
     display_df = display_df.sort_values("시간", ascending=False).reset_index(drop=True)
-    display_df.insert(0, "번호", range(1, len(display_df)+1))  # 번호 열은 그대로!
-    st.dataframe(display_df, use_container_width=True, hide_index=True)  # 회색 인덱스 숨기기!
+    display_df.insert(0, "번호", range(1, len(display_df)+1))
+    st.dataframe(display_df, use_container_width=True, hide_index=True) 
 
 else:
     st.info("아직 저장된 분석 기록이 없습니다.")
