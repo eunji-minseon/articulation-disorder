@@ -172,7 +172,9 @@ if user_file:
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         user_coords_path = os.path.join(PROCESSED_DIR, f"user_coords_{timestamp}.txt")
 
-        st.info("📍 사용자 영상 → 입모양 좌표 추출 중...")
+        with st.spinner("📍 사용자 영상 → 입모양 좌표 추출 중..."):
+            extract_mouth_landmarks(user_video_path, user_coords_path)
+
         extract_mouth_landmarks(user_video_path, user_coords_path)
         user_coords = load_coords(user_coords_path)
 
@@ -211,7 +213,7 @@ if user_file:
                     with col2:
                         st.metric("발화 정확도", f"{text_similarity}%")
 
-                    st.markdown("### 💬 종합 피드백")
+                    st.markdown("#### 💬 종합 피드백")
                     if similarity >= 70 and text_similarity >= 80:
                         st.success("발음과 내용 모두 아주 정확합니다! 😎")
                     elif similarity >= 50 and text_similarity >= 60:
