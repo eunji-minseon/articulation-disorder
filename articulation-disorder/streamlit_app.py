@@ -202,14 +202,23 @@ if user_file:
                 text_similarity = compare_texts(selected_sentence, stt_result)
                 st.markdown(f"### 🧠 발화 정확도: `{text_similarity}%`")
 
-                # 💬 종합 피드백
-                st.markdown("### 💬 종합 피드백")
-                if similarity >= 70 and text_similarity >= 80:
-                    st.success("발음과 내용 모두 아주 정확합니다! 😎")
-                elif similarity >= 50 and text_similarity >= 60:
-                    st.warning("전반적으로 괜찮지만, 조음이나 발화 중 일부가 부족할 수 있어요.")
-                else:
-                    st.error("입모양과 발화 모두 연습이 필요해요. 다시 시도해보세요.")
+                with st.expander("📝 진단 결과", expanded=True):
+                    col1, col2 = st.columns(2)
+
+                    with col1:
+                        st.metric("👄 조음 정확도", f"{similarity}%")
+
+                    with col2:
+                        st.metric("🧠 발화 정확도", f"{text_similarity}%")
+
+                    st.markdown("### 💬 종합 피드백")
+                    if similarity >= 70 and text_similarity >= 80:
+                        st.success("발음과 내용 모두 아주 정확합니다! 😎")
+                    elif similarity >= 50 and text_similarity >= 60:
+                        st.warning("전반적으로 괜찮지만, 조음이나 발화 중 일부가 부족할 수 있어요.")
+                    else:
+                        st.error("입모양과 발화 모두 연습이 필요해요. 다시 시도해보세요.")
+            
             except Exception as e:
                 st.error(f"🚨 STT 분석 중 오류 발생: {e}")
 
