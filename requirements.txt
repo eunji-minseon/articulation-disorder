@@ -6,3 +6,4 @@ gTTS
 matplotlib
 imageio-ffmpeg
 torch
+openai-whisper

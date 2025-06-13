@@ -1,6 +1,8 @@
 import os
 from gtts import gTTS
 import base64
+import whisper
+from difflib import SequenceMatcher
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "articulation-disorder"))
 
@@ -17,6 +19,15 @@ def text_to_speech(text, filename="output.mp3"):
     tts = gTTS(text=text, lang='ko')
     tts.save(filename)
     return filename
+
+def get_stt_text(video_path):
+    model = whisper.load_model("base")
+    result = model.transcribe(video_path, language='ko')
+    return result["text"]
+
+def compare_texts(ref_text, stt_text):
+    ratio = SequenceMatcher(None, ref_text, stt_text).ratio()
+    return round(ratio * 100, 1)
 
 def normalize_coordinates(coords):
     #좌표 정규화
@@ -179,13 +190,34 @@ if user_file:
 
         similarity = calculate_improved_similarity(user_coords, ref_coords)
 
-        st.markdown(f"### ✅ 유사도: `{similarity}%`")
-        if similarity >= 70:  
+        # 👄 입모양 유사도
+        st.markdown(f"### 👄 조음 정확도: `{similarity}%`")
+        if similarity >= 70:
             st.success("발음이 매우 정확합니다! 😄")
-        elif similarity >= 50: 
+        elif similarity >= 50:
             st.warning("조금 더 연습이 필요해요. 🙂")
         else:
             st.error("입모양이 많이 다르네요. 연습이 필요해요. 🤭")
+
+        # 🧠 STT 기반 발화 유사도
+        st.info("🎙️ 사용자의 실제 발화 내용을 인식 중입니다...")
+        try:
+            stt_result = get_stt_text(user_video_path)
+            st.markdown(f"### 📝 STT 결과: `{stt_result}`")
+
+            text_similarity = compare_texts(selected_sentence, stt_result)
+            st.markdown(f"### 🧠 발화 정확도: `{text_similarity}%`")
+
+            # 💬 종합 피드백
+            st.markdown("### 💬 종합 피드백")
+            if similarity >= 70 and text_similarity >= 80:
+                st.success("발음과 내용 모두 아주 정확합니다! 😎")
+            elif similarity >= 50 and text_similarity >= 60:
+                st.warning("전반적으로 괜찮지만, 조음이나 발화 중 일부가 부족할 수 있어요.")
+            else:
+                st.error("입모양과 발화 모두 연습이 필요해요. 다시 시도해보세요.")
+        except Exception as e:
+            st.error(f"🚨 STT 분석 중 오류 발생: {e}")
 
         # 문장만 읽기
         sentence_text = f"{selected_sentence}"
