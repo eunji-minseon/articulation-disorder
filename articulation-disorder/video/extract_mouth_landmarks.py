@@ -2,21 +2,21 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
-mp_face_mesh = mp.solutions.face_mesh
-
+# 입술 landmark index
 LIPS_IDX = sorted(set([
-    61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291,
-    146, 91, 181, 84, 17, 314, 405, 321, 375
+    0, 17, 37, 39, 40, 61, 84, 91, 146, 181, 185,
+    267, 269, 270, 291, 314, 321, 375, 405, 409  # 상하 입술 포함
 ]))
 
-# 명도 조정
+# 프레임 명도 조정 (LAB + CLAHE)
 def enhance_frame_quality(frame):
     lab = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
     l, a, b = cv2.split(lab)
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
     l = clahe.apply(l)
     enhanced = cv2.merge([l, a, b])
-    return cv2.cvtColor(enhanced, cv2.COLOR_LAB2BGR)
+    enhanced = cv2.cvtColor(enhanced, cv2.COLOR_LAB2BGR)
+    return enhanced
 
 # 좌표 정규화 (0~1 범위)
 def normalize_coordinates(coords, frame_width=None, frame_height=None):
@@ -24,10 +24,11 @@ def normalize_coordinates(coords, frame_width=None, frame_height=None):
     min_xy = np.min(coords_array, axis=0)
     max_xy = np.max(coords_array, axis=0)
     box_size = max_xy - min_xy
-    box_size[box_size == 0] = 1e-6
-    normalized = (coords_array - min_xy) / box_size
-    return normalized.tolist()
+    box_size[box_size == 0] = 1e-6  # division by zero 방지
+    normalized_coords = (coords_array - min_xy) / box_size
+    return normalized_coords.tolist()
 
+# 입모양 좌표 추출 함수
 def extract_mouth_landmarks(video_path, output_txt_path):
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
@@ -42,6 +43,8 @@ def extract_mouth_landmarks(video_path, output_txt_path):
     frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
+    # FaceMesh 초기화
+    mp_face_mesh = mp.solutions.face_mesh
     face_mesh = mp_face_mesh.FaceMesh(
         static_image_mode=False,
         max_num_faces=1,
@@ -59,9 +62,11 @@ def extract_mouth_landmarks(video_path, output_txt_path):
             print(f"⚠️ 프레임 {i} 읽기 실패")
             continue
 
-        # 프레임 품질 향상 → 명도 조정 포함
+        # 프레임 품질 향상
         enhanced_frame = enhance_frame_quality(frame)
         frame_rgb = cv2.cvtColor(enhanced_frame, cv2.COLOR_BGR2RGB)
+
+        # 얼굴 랜드마크 추출
         results = face_mesh.process(frame_rgb)
 
         if results.multi_face_landmarks:
@@ -73,12 +78,14 @@ def extract_mouth_landmarks(video_path, output_txt_path):
                     x = lm.x * frame_width
                     y = lm.y * frame_height
                     mouth_coords.append((x, y))
+
             if len(mouth_coords) == len(LIPS_IDX):
                 norm_coords = normalize_coordinates(mouth_coords)
                 coords_all.append(norm_coords)
                 success_count += 1
+
         elif coords_all:
-            coords_all.append(coords_all[-1])  # 마지막 성공 프레임 좌표 복사
+            coords_all.append(coords_all[-1])  # 마지막 성공 프레임 복사
 
     cap.release()
     face_mesh.close()
