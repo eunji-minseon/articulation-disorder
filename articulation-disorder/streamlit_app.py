@@ -234,8 +234,9 @@ if user_file:
         result_row = pd.DataFrame([{
             "user_id": str(user_id),
             "timestamp": timestamp,
-            "sentence": selected_sentence,
-            "similarity": similarity
+            "articulation_similarity": similarity, 
+            "speech_similarity": text_similarity
+           
         }])
 
         if os.path.exists(SCORE_LOG_PATH) and os.path.getsize(SCORE_LOG_PATH) > 0:
@@ -256,11 +257,21 @@ st.markdown("---")
 st.markdown("### 🗂️ 내 분석 기록")
 
 user_history = score_df[score_df["user_id"] == user_id] if "user_id" in score_df.columns else pd.DataFrame()
+
+for col in ["timestamp", "sentence", "articulation_similarity", "speech_similarity"]:
+    if col not in user_history.columns:
+        user_history[col] = None
+
 try:
-    st.dataframe(user_history.sort_values("timestamp", ascending=False).reset_index(drop=True))
+    st.dataframe(
+        user_history[["timestamp", "sentence", "articulation_similarity", "speech_similarity"]]
+        .sort_values("timestamp", ascending=False)
+        .reset_index(drop=True)
+    )
 except KeyError:
     st.warning("❌ 'timestamp' 열이 없어서 정렬할 수 없습니다.")
     st.dataframe(user_history)
+
 
 if st.button("🗑️ 기존 기록 완전 삭제"):
     try:
