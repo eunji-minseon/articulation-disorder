@@ -18,22 +18,24 @@ from video.extract_mouth_landmarks import extract_mouth_landmarks
 from gtts import gTTS
 import whisper
 
+#tts 함수
 def text_to_speech(text, filename="output.mp3"):
     tts = gTTS(text=text, lang='ko')
     tts.save(filename)
     return filename
-
+#stt 함수
 def get_stt_text(video_path):
     model = whisper.load_model("base")
     result = model.transcribe(video_path, language='ko')
     return result["text"]
 
-from difflib import SequenceMatcher
-
+#입모양 좌표 유사도 비교 함수
+from difflib import SequenceMatcher 
 def compare_texts(ref_text, stt_text):
     ratio = SequenceMatcher(None, ref_text, stt_text).ratio()
     return round(ratio * 100, 1)
 
+# 유클리드 거리 기반 측정 함수
 def calculate_improved_similarity(user_coords, ref_coords):
     similarities = []
     min_len = min(len(user_coords), len(ref_coords))
@@ -46,7 +48,6 @@ def calculate_improved_similarity(user_coords, ref_coords):
             cut_len = min(len(c1), len(c2))
             c1 = c1[:cut_len]
             c2 = c2[:cut_len]
-
         try:
             c1_np = np.array(c1)
             c2_np = np.array(c2)
@@ -54,19 +55,18 @@ def calculate_improved_similarity(user_coords, ref_coords):
             distances = np.linalg.norm(c1_np - c2_np, axis=1)
             avg_dist = np.mean(distances)
 
-            # 개후한 계산 공식
-            similarity_score = round(100 - (avg_dist * 65), 1)  
+            similarity_score = round(100 - (avg_dist * 70), 1)  
             similarity_score = min(max(similarity_score, 30), 100)
 
             similarities.append(similarity_score)
-
         except Exception as e:
             print(f"❌ Error at frame {i}: {e}")
             continue
 
+    # 점수 안정화 처리
     if similarities:
         final_score = round(np.mean(similarities), 1)
-        if final_score >= 85:  # 너무 비슷하면 걍 100
+        if final_score >= 90: 
             return 100.0
         return final_score
     else:
@@ -163,7 +163,7 @@ if user_file:
         if not user_coords or not ref_coords:
             st.error("🚨 좌표 데이터가 비어있습니다.")
             st.stop()
-        # 좌표 불러온 후 정규화
+       
         user_coords = load_coords(user_coords_path)
         ref_coords = load_coords(ref_coords_path)
         print("ref shape:", np.array(ref_coords).shape)
@@ -171,10 +171,7 @@ if user_file:
 
         similarity = calculate_improved_similarity(user_coords, ref_coords)
 
-        # 👄 입모양 유사도
         st.markdown(f"#### ✓  조음 정확도: `{similarity}%`")
-
-        # 🧠 STT 기반 발화 유사도
         with st.spinner("🎙️ 사용자의 실제 발화 내용을 인식 중입니다..."):
             try:
                 stt_result = get_stt_text(user_video_path)
@@ -203,7 +200,6 @@ if user_file:
             except Exception as e:
                 st.error(f"🚨 STT 분석 중 오류 발생: {e}")
 
-        # 문장만 읽기
         sentence_text = f"{selected_sentence}"
         tts_path = text_to_speech(sentence_text, "sentence_only.mp3")
 
@@ -263,8 +259,7 @@ if not user_history.empty:
 
 else:
     st.info("아직 저장된 분석 기록이 없습니다.")
-
-
+    
 if st.button("🗑️ 기존 기록 완전 삭제"):
     try:
         os.remove(SCORE_LOG_PATH)
