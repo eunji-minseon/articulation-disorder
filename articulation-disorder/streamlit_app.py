@@ -30,23 +30,17 @@ def compare_texts(ref_text, stt_text):
     return round(ratio * 100, 1)
 
 def normalize_coordinates(coords):
-    #좌표 정규화
-    if not coords:
-        return coords
-    
+    """Bounding box 기준 정규화"""
     coords_array = np.array(coords)
-    
-    # 중심점 계산 (얼굴 위치 보정)
-    center = np.mean(coords_array, axis=0)
-    centered_coords = coords_array - center
-    
-    # 스케일 정규화 (얼굴 크기 보정)
-    scale = np.std(centered_coords)
-    if scale > 0:
-        normalized_coords = centered_coords / scale
-    else:
-        normalized_coords = centered_coords
-    
+
+    min_xy = np.min(coords_array, axis=0)
+    max_xy = np.max(coords_array, axis=0)
+    box_size = max_xy - min_xy
+
+    # divide by zero 방지
+    box_size[box_size == 0] = 1e-6
+
+    normalized_coords = (coords_array - min_xy) / box_size
     return normalized_coords.tolist()
 
 def calculate_improved_similarity(user_coords, ref_coords):

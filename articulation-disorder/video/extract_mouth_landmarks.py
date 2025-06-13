@@ -48,14 +48,19 @@ def enhance_frame_quality(frame):
     
     return enhanced
 
-def normalize_coordinates(coords, frame_width, frame_height):
-    """좌표 정규화 (0-1 범위로)"""
-    normalized = []
-    for x, y in coords:
-        norm_x = x / frame_width if frame_width > 0 else x
-        norm_y = y / frame_height if frame_height > 0 else y
-        normalized.append((norm_x, norm_y))
-    return normalized
+def normalize_coordinates(coords, frame_width=None, frame_height=None):
+    """좌표 정규화 (Bounding Box 기준 0-1 범위로)"""
+    coords_array = np.array(coords)
+
+    min_xy = np.min(coords_array, axis=0)
+    max_xy = np.max(coords_array, axis=0)
+    box_size = max_xy - min_xy
+
+    # 박스 크기가 0인 경우 방지
+    box_size[box_size == 0] = 1e-6
+
+    normalized_coords = (coords_array - min_xy) / box_size
+    return normalized_coords.tolist()
 
 def extract_mouth_landmarks(video_path, output_txt_path):
     cap = cv2.VideoCapture(video_path)
