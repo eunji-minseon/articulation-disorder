@@ -121,9 +121,9 @@ sentence_analysis = {
     "예쁜 아기 곰": ["ㅖ", "ㅃ"],
 }
 
-st.title("\U0001F5E3️ 조음장애 진단 시스템")
+st.title("\U0001F5E3️ 조음장애 치료 시스템")
 
-selected_sentence = st.selectbox("진단할 문장을 선택하세요.:", list(sentence_to_file.keys()))
+selected_sentence = st.selectbox("진단할 문장을 선택하세요 :", list(sentence_to_file.keys()))
 phonemes = sentence_analysis[selected_sentence]
 st.markdown(f"### ✅ 유의할 음소: `{', '.join(phonemes)}`")
 st.info("👉 해당 음소들을 집중해서 발음하면 더 좋은 결과를 얻을 수 있어요!")
@@ -172,16 +172,16 @@ if user_file:
         similarity = calculate_improved_similarity(user_coords, ref_coords)
 
         # 👄 입모양 유사도
-        st.markdown(f"#### ✓ 조음 정확도: `{similarity}%`")
+        st.markdown(f"#### ✓  조음 정확도: `{similarity}%`")
 
         # 🧠 STT 기반 발화 유사도
         with st.spinner("🎙️ 사용자의 실제 발화 내용을 인식 중입니다..."):
             try:
                 stt_result = get_stt_text(user_video_path)
                 text_similarity = compare_texts(selected_sentence, stt_result)
-                st.markdown(f"#### ✓ 발화 정확도: `{text_similarity}%`")
+                st.markdown(f"#### ✓  발화 정확도: `{text_similarity}%`")
 
-                st.markdown(f"#### ✓ 인식된 음성 결과: `{stt_result}`")
+                st.markdown(f"#### ✓  인식된 음성 결과: `{stt_result}`")
 
                 with st.expander("📊 진단 결과", expanded=True):
                     col1, col2 = st.columns(2)
@@ -258,8 +258,9 @@ if not user_history.empty:
     display_df.columns = ["시간", "문장", "조음 정확도", "발화 정확도"]
     
     display_df = display_df.sort_values("시간", ascending=False).reset_index(drop=True)
-    display_df.insert(0, "번호", range(1, len(display_df)+1))   
-    st.dataframe(display_df)
+    display_df.insert(0, "번호", range(1, len(display_df)+1))  # 번호 열은 그대로!
+    st.dataframe(display_df, use_container_width=True, hide_index=True)  # 회색 인덱스 숨기기!
+
 else:
     st.info("아직 저장된 분석 기록이 없습니다.")
 
