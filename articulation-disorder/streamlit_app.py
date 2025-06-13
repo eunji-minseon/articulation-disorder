@@ -13,6 +13,11 @@ from datetime import datetime
 import pandas as pd
 from video.extract_mouth_landmarks import extract_mouth_landmarks
 
+def text_to_speech(text, filename="output.mp3"):
+    tts = gTTS(text=text, lang='ko')
+    tts.save(filename)
+    return filename
+
 def normalize_coordinates(coords):
     #좌표 정규화
     if not coords:
@@ -196,12 +201,6 @@ if user_file:
                 """,
                 unsafe_allow_html=True,
             )
-
-        def text_to_speech(text, filename="output.mp3"):
-            tts = gTTS(text=text, lang='ko')
-            tts.save(filename)
-            return filename
-
 
         if similarity is not None and timestamp is not None:
             st.markdown(f"📌 최근 점수: {similarity}% ({timestamp})")    
